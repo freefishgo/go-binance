@@ -196,13 +196,12 @@ type CreateBatchOrdersOrderService struct {
 }
 
 // Do send request
-func (c *CreateBatchOrdersOrderService) Do(ctx context.Context, orderList []*CreateOrderService, opts ...RequestOption) (res *CreateOrderResponse, err error) {
+func (c *CreateBatchOrdersOrderService) Do(ctx context.Context, orderList []*CreateOrderService, opts ...RequestOption) (res []*CreateOrderResponse, err error) {
 	data, err := c.createOrder(ctx, "/dapi/v1/batchOrders", orderList, opts...)
 	if err != nil {
 		return nil, err
 	}
-	res = new(CreateOrderResponse)
-	err = json.Unmarshal(data, res)
+	err = json.Unmarshal(data, &res)
 	if err != nil {
 		return nil, err
 	}
