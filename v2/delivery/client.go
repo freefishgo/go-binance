@@ -388,6 +388,10 @@ func (c *Client) NewCreateOrderService() *CreateOrderService {
 	return &CreateOrderService{c: c}
 }
 
+func (c *Client) NewCreateBatchOrdersOrderService() *CreateBatchOrdersOrderService {
+	return &CreateBatchOrdersOrderService{c: c}
+}
+
 // NewGetOrderService init get order service
 func (c *Client) NewGetOrderService() *GetOrderService {
 	return &GetOrderService{c: c}
