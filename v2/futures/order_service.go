@@ -204,7 +204,7 @@ type CreateBatchOrdersOrderService struct {
 
 // Do send request
 func (c *CreateBatchOrdersOrderService) Do(ctx context.Context, orderList []*CreateOrderService, opts ...RequestOption) (res []*CreateOrderResponse, err error) {
-	data, err := c.createOrder(ctx, "/dapi/v1/batchOrders", orderList, opts...)
+	data, err := c.createOrder(ctx, "/fapi/v1/batchOrders", orderList, opts...)
 	if err != nil {
 		return nil, err
 	}
