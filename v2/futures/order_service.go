@@ -198,6 +198,85 @@ func (s *CreateOrderService) Do(ctx context.Context, opts ...RequestOption) (res
 	return res, nil
 }
 
+type CreateBatchOrdersOrderService struct {
+	c *Client
+}
+
+// Do send request
+func (c *CreateBatchOrdersOrderService) Do(ctx context.Context, orderList []*CreateOrderService, opts ...RequestOption) (res []*CreateOrderResponse, err error) {
+	data, err := c.createOrder(ctx, "/dapi/v1/batchOrders", orderList, opts...)
+	if err != nil {
+		return nil, err
+	}
+	err = json.Unmarshal(data, &res)
+	if err != nil {
+		return nil, err
+	}
+	return res, nil
+}
+
+func (c *CreateBatchOrdersOrderService) createOrder(ctx context.Context, endpoint string, orderList []*CreateOrderService, opts ...RequestOption) (data []byte, err error) {
+	r := &request{
+		method:   http.MethodPost,
+		endpoint: endpoint,
+		secType:  secTypeSigned,
+	}
+	var mList []params
+	for _, s := range orderList {
+		m := params{
+			"symbol":           s.symbol,
+			"side":             s.side,
+			"type":             s.orderType,
+			"quantity":         s.quantity,
+			"newOrderRespType": s.newOrderRespType,
+		}
+		if s.positionSide != nil {
+			m["positionSide"] = *s.positionSide
+		}
+		if s.timeInForce != nil {
+			m["timeInForce"] = *s.timeInForce
+		}
+		if s.reduceOnly != nil {
+			m["reduceOnly"] = *s.reduceOnly
+		}
+		if s.price != nil {
+			m["price"] = *s.price
+		}
+		if s.newClientOrderID != nil {
+			m["newClientOrderId"] = *s.newClientOrderID
+		}
+		if s.stopPrice != nil {
+			m["stopPrice"] = *s.stopPrice
+		}
+		if s.workingType != nil {
+			m["workingType"] = *s.workingType
+		}
+		if s.priceProtect != nil {
+			m["priceProtect"] = *s.priceProtect
+		}
+		if s.activationPrice != nil {
+			m["activationPrice"] = *s.activationPrice
+		}
+		if s.callbackRate != nil {
+			m["callbackRate"] = *s.callbackRate
+		}
+		if s.closePosition != nil {
+			m["closePosition"] = *s.closePosition
+		}
+		mList = append(mList, m)
+	}
+	b, _ := json.Marshal(mList)
+	m := params{
+		"batchOrders": string(b),
+	}
+	r.setFormParams(m)
+	data, _, err = c.c.callAPI(ctx, r, opts...)
+	if err != nil {
+		return []byte{}, err
+	}
+	return data, nil
+}
+
 // CreateOrderResponse define create order response
 type CreateOrderResponse struct {
 	Symbol            string           `json:"symbol"`

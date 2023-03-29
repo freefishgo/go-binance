@@ -15,8 +15,8 @@ import (
 	"os"
 	"time"
 
-	"github.com/adshao/go-binance/v2/common"
 	"github.com/bitly/go-simplejson"
+	"github.com/freefishgo/go-binance/v2/common"
 )
 
 // SideType define side type of order
@@ -393,6 +393,10 @@ func (c *Client) NewAggTradesService() *AggTradesService {
 // NewRecentTradesService init recent trades service
 func (c *Client) NewRecentTradesService() *RecentTradesService {
 	return &RecentTradesService{c: c}
+}
+
+func (c *Client) NewCreateBatchOrdersOrderService() *CreateBatchOrdersOrderService {
+	return &CreateBatchOrdersOrderService{c: c}
 }
 
 // NewKlinesService init klines service
