@@ -296,6 +296,8 @@ type CreateOrderResponse struct {
 	UpdateTime       int64            `json:"updateTime"`
 	WorkingType      WorkingType      `json:"workingType"`
 	PriceProtect     bool             `json:"priceProtect"`
+	Code             int              `json:"code"`
+	Msg              string           `json:"msg"`
 }
 
 // ListOpenOrdersService list opened orders
