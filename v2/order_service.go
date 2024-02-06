@@ -21,11 +21,23 @@ type CreateOrderService struct {
 	stopPrice        *string
 	trailingDelta    *string
 	icebergQuantity  *string
+	strategyId       *int
+	strategyType     *int // 不能低于 1000000
 }
 
 // Symbol set symbol
 func (s *CreateOrderService) Symbol(symbol string) *CreateOrderService {
 	s.symbol = symbol
+	return s
+}
+
+func (s *CreateOrderService) StrategyId(strategyId int) *CreateOrderService {
+	s.strategyId = &strategyId
+	return s
+}
+
+func (s *CreateOrderService) StrategyType(strategyType int) *CreateOrderService {
+	s.strategyType = &strategyType
 	return s
 }
 
@@ -133,6 +145,12 @@ func (s *CreateOrderService) createOrder(ctx context.Context, endpoint string, o
 	if s.newOrderRespType != nil {
 		m["newOrderRespType"] = *s.newOrderRespType
 	}
+	if s.strategyId != nil {
+		m["strategyId"] = *s.strategyId
+	}
+	if s.strategyType != nil {
+		m["strategyType"] = *s.strategyType
+	}
 	r.setFormParams(m)
 	data, err = s.c.callAPI(ctx, r, opts...)
 	if err != nil {
@@ -143,6 +161,10 @@ func (s *CreateOrderService) createOrder(ctx context.Context, endpoint string, o
 
 // Do send request
 func (s *CreateOrderService) Do(ctx context.Context, opts ...RequestOption) (res *CreateOrderResponse, err error) {
+	if s.c.Test {
+		err = s.Test(ctx, opts...)
+		return nil, err
+	}
 	data, err := s.createOrder(ctx, "/api/v3/order", opts...)
 	if err != nil {
 		return nil, err

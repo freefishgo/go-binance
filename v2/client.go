@@ -7,6 +7,7 @@ import (
 	"crypto/sha256"
 	"crypto/tls"
 	"fmt"
+	"github.com/bitly/go-simplejson"
 	"io/ioutil"
 	"log"
 	"net/http"
@@ -14,10 +15,9 @@ import (
 	"os"
 	"time"
 
-	"github.com/adshao/go-binance/v2/common"
-	"github.com/adshao/go-binance/v2/delivery"
-	"github.com/adshao/go-binance/v2/futures"
-	"github.com/bitly/go-simplejson"
+	"github.com/freefishgo/go-binance/v2/common"
+	"github.com/freefishgo/go-binance/v2/delivery"
+	"github.com/freefishgo/go-binance/v2/futures"
 	jsoniter "github.com/json-iterator/go"
 )
 
@@ -319,6 +319,7 @@ type Client struct {
 	Logger     *log.Logger
 	TimeOffset int64
 	do         doFunc
+	Test       bool
 }
 
 func (c *Client) debug(format string, v ...interface{}) {
@@ -446,6 +447,22 @@ func (c *Client) NewPingService() *PingService {
 // NewServerTimeService init server time service
 func (c *Client) NewServerTimeService() *ServerTimeService {
 	return &ServerTimeService{c: c}
+}
+
+func (c *Client) NewGetSimpleEarnFlexibleListService() *GetSimpleEarnFlexibleListService {
+	return &GetSimpleEarnFlexibleListService{c: c}
+}
+
+func (c *Client) NewSimpleEarnFlexibleSubscribeService() *SimpleEarnFlexibleSubscribeService {
+	return &SimpleEarnFlexibleSubscribeService{c: c}
+}
+
+func (c *Client) NewSimpleEarnFlexibleRedeemService() *SimpleEarnFlexibleRedeemService {
+	return &SimpleEarnFlexibleRedeemService{c: c}
+}
+
+func (c *Client) NewGetSimpleEarnFlexiblePositionService() *GetSimpleEarnFlexiblePositionService {
+	return &GetSimpleEarnFlexiblePositionService{c: c}
 }
 
 // NewSetServerTimeService init set server time service
