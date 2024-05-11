@@ -91,7 +91,7 @@ type CoinInfo struct {
 	Withdrawing       string    `json:"withdrawing"`
 }
 
-type ContractAddress struct {
+type Network struct {
 	AddressRegex            string `json:"addressRegex"`
 	Coin                    string `json:"coin"`
 	DepositDesc             string `json:"depositDesc,omitempty"` // 仅在充值关闭时返回
