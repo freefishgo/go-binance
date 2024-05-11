@@ -18,6 +18,7 @@ type CreateWithdrawService struct {
 	amount             string
 	transactionFeeFlag *bool
 	name               *string
+	walletType         *int // 表示出金使用的钱包，0为现货钱包，1为资金钱包。默认walletType为"充币账户"是您设置在钱包->现货账户或资金账户->充值
 }
 
 // Coin sets the coin parameter (MANDATORY).
@@ -68,6 +69,12 @@ func (s *CreateWithdrawService) Name(v string) *CreateWithdrawService {
 	return s
 }
 
+// WalletType sets the walletType parameter.
+func (s *CreateWithdrawService) WalletType(v int) *CreateWithdrawService {
+	s.walletType = &v
+	return s
+}
+
 // Do sends the request.
 func (s *CreateWithdrawService) Do(ctx context.Context) (*CreateWithdrawResponse, error) {
 	r := &request{
@@ -92,6 +99,9 @@ func (s *CreateWithdrawService) Do(ctx context.Context) (*CreateWithdrawResponse
 	}
 	if v := s.name; v != nil {
 		r.setParam("name", *v)
+	}
+	if v := s.walletType; v != nil {
+		r.setParam("walletType", *v)
 	}
 
 	data, err := s.c.callAPI(ctx, r)
