@@ -125,6 +125,7 @@ type GetDepositsAddressService struct {
 	c       *Client
 	coin    string
 	network *string
+	amount  *string
 }
 
 // Coin sets the coin parameter (MANDATORY).
@@ -139,6 +140,12 @@ func (s *GetDepositsAddressService) Network(network string) *GetDepositsAddressS
 	return s
 }
 
+// Amount sets the amount parameter.
+func (s *GetDepositsAddressService) Amount(amount string) *GetDepositsAddressService {
+	s.amount = &amount
+	return s
+}
+
 // Do sends the request.
 func (s *GetDepositsAddressService) Do(ctx context.Context) (*GetDepositAddressResponse, error) {
 	r := &request{
@@ -149,6 +156,9 @@ func (s *GetDepositsAddressService) Do(ctx context.Context) (*GetDepositAddressR
 	r.setParam("coin", s.coin)
 	if s.network != nil {
 		r.setParam("network", *s.network)
+	}
+	if s.amount != nil {
+		r.setParam("amount", *s.amount)
 	}
 
 	data, err := s.c.callAPI(ctx, r)
