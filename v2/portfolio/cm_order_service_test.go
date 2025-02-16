@@ -152,3 +152,104 @@ func (s *baseOrderTestSuite) assertCreateOrderResponseEqual(e, a *CreateOrderRes
 	r.Equal(e.PriceRate, a.PriceRate, "PriceRate")
 	r.Equal(e.ClosePosition, a.ClosePosition, "ClosePosition")
 }
+
+func (s *orderServiceTestSuite) TestGetOrder() {
+	//data := []byte(`{
+	//	"avgPrice": "0.0",
+	//	"clientOrderId": "abc",
+	//	"cumBase": "0",
+	//	"executedQty": "0",
+	//	"orderId": 1917641,
+	//	"origQty": "0.40",
+	//	"origType": "TRAILING_STOP_MARKET",
+	//	"price": "0",
+	//	"reduceOnly": false,
+	//	"side": "BUY",
+	//	"status": "NEW",
+	//	"stopPrice": "9300",
+	//	"closePosition": false,
+	//	"symbol": "BTCUSD_200925",
+	//	"pair": "BTCUSD",
+	//	"time": 1579276756075,
+	//	"timeInForce": "GTC",
+	//	"type": "TRAILING_STOP_MARKET",
+	//	"activatePrice": "9020",
+	//	"priceRate": "0.3",
+	//	"updateTime": 1579276756075,
+	//	"workingType": "CONTRACT_PRICE",
+	//	"priceProtect": false
+	//}`)
+	//s.mockDo(data, nil)
+	//defer s.assertDo()
+
+	symbol := "BNBUSD_PERP"
+	//orderID := int64(1917641)
+	origClientOrderID := "testOrder"
+	//s.assertReq(func(r *request) {
+	//	e := newSignedRequest().setParams(params{
+	//		"symbol":            symbol,
+	//		"orderId":           orderID,
+	//		"origClientOrderId": origClientOrderID,
+	//	})
+	//	s.assertRequestEqual(e, r)
+	//})
+	order, err := s.client.NewGetCMOrderService().Symbol(symbol).
+		//OrderID(orderID).
+		OrigClientOrderID(origClientOrderID).Do(newContext())
+	r := s.r()
+	r.NoError(err)
+	e := &Order{
+		AvgPrice:         "0.0",
+		ClientOrderID:    "abc",
+		CumBase:          "0",
+		ExecutedQuantity: "0",
+		OrderID:          1917641,
+		OrigQuantity:     "0.40",
+		OrigType:         OrderTypeTrailingStopMarket,
+		Price:            "0",
+		ReduceOnly:       false,
+		Side:             SideTypeBuy,
+		Status:           OrderStatusTypeNew,
+		StopPrice:        "9300",
+		ClosePosition:    false,
+		Symbol:           "BTCUSD_200925",
+		Pair:             "BTCUSD",
+		Time:             1579276756075,
+		TimeInForce:      TimeInForceTypeGTC,
+		Type:             OrderTypeTrailingStopMarket,
+		ActivatePrice:    "9020",
+		PriceRate:        "0.3",
+		UpdateTime:       1579276756075,
+		WorkingType:      WorkingTypeContractPrice,
+		PriceProtect:     false,
+	}
+	s.assertOrderEqual(e, order)
+}
+
+func (s *baseOrderTestSuite) assertOrderEqual(e, a *Order) {
+	r := s.r()
+	r.Equal(e.AvgPrice, a.AvgPrice, "AvgPrice")
+	r.Equal(e.ClientOrderID, a.ClientOrderID, "ClientOrderID")
+	r.Equal(e.CumBase, a.CumBase, "CumBase")
+	r.Equal(e.ExecutedQuantity, a.ExecutedQuantity, "ExecutedQuantity")
+	r.Equal(e.OrderID, a.OrderID, "OrderID")
+	r.Equal(e.OrigQuantity, a.OrigQuantity, "OrigQuantity")
+	r.Equal(e.OrigType, a.OrigType, "OrigType")
+	r.Equal(e.Price, a.Price, "Price")
+	r.Equal(e.ReduceOnly, a.ReduceOnly, "ReduceOnly")
+	r.Equal(e.Side, a.Side, "Side")
+	r.Equal(e.PositionSide, a.PositionSide, "PositionSide")
+	r.Equal(e.Status, a.Status, "Status")
+	r.Equal(e.StopPrice, a.StopPrice, "StopPrice")
+	r.Equal(e.ClosePosition, a.ClosePosition, "ClosePosition")
+	r.Equal(e.Symbol, a.Symbol, "Symbol")
+	r.Equal(e.Pair, a.Pair, "Pair")
+	r.Equal(e.Time, a.Time, "Time")
+	r.Equal(e.TimeInForce, a.TimeInForce, "TimeInForce")
+	r.Equal(e.Type, a.Type, "Type")
+	r.Equal(e.ActivatePrice, a.ActivatePrice, "ActivatePrice")
+	r.Equal(e.PriceRate, a.PriceRate, "PriceRate")
+	r.Equal(e.UpdateTime, a.UpdateTime, "UpdateTime")
+	r.Equal(e.WorkingType, a.WorkingType, "WorkingType")
+	r.Equal(e.PriceProtect, a.PriceProtect, "PriceProtect")
+}

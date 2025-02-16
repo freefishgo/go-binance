@@ -382,3 +382,7 @@ func (c *Client) NewChangeLeverageService() *ChangeLeverageService {
 func (c *Client) NewGetAccountService() *GetCMAccountService {
 	return &GetCMAccountService{c: c}
 }
+
+func (c *Client) NewGetCMOrderService() *GetCMOrderService {
+	return &GetCMOrderService{c: c}
+}

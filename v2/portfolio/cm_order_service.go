@@ -33,6 +33,11 @@ func (s *CreateCMOrderService) Symbol(symbol string) *CreateCMOrderService {
 	return s
 }
 
+// GetSymbol get symbol
+func (s *CreateCMOrderService) GetSymbol() string {
+	return s.symbol
+}
+
 // Side set side
 func (s *CreateCMOrderService) Side(side SideType) *CreateCMOrderService {
 	s.side = side
@@ -79,6 +84,14 @@ func (s *CreateCMOrderService) Price(price string) *CreateCMOrderService {
 func (s *CreateCMOrderService) NewClientOrderID(newClientOrderID string) *CreateCMOrderService {
 	s.newClientOrderID = &newClientOrderID
 	return s
+}
+
+// GetClientOrderID get newClientOrderID
+func (s *CreateCMOrderService) GetClientOrderID() string {
+	if s.newClientOrderID != nil {
+		return *s.newClientOrderID
+	}
+	return ""
 }
 
 // StopPrice set stopPrice
@@ -298,4 +311,84 @@ type CreateOrderResponse struct {
 	PriceProtect     bool             `json:"priceProtect"`
 	Code             int              `json:"code"`
 	Msg              string           `json:"msg"`
+}
+
+// GetCMOrderService get an order
+type GetCMOrderService struct {
+	c                 *Client
+	symbol            string
+	orderID           *int64
+	origClientOrderID *string
+}
+
+// Symbol set symbol
+func (s *GetCMOrderService) Symbol(symbol string) *GetCMOrderService {
+	s.symbol = symbol
+	return s
+}
+
+// OrderID set orderID
+func (s *GetCMOrderService) OrderID(orderID int64) *GetCMOrderService {
+	s.orderID = &orderID
+	return s
+}
+
+// OrigClientOrderID set origClientOrderID
+func (s *GetCMOrderService) OrigClientOrderID(origClientOrderID string) *GetCMOrderService {
+	s.origClientOrderID = &origClientOrderID
+	return s
+}
+
+// Do send request
+func (s *GetCMOrderService) Do(ctx context.Context, opts ...RequestOption) (res *Order, err error) {
+	r := &request{
+		method:   http.MethodGet,
+		endpoint: "/papi/v1/cm/order",
+		secType:  secTypeSigned,
+	}
+	r.setParam("symbol", s.symbol)
+	if s.orderID != nil {
+		r.setParam("orderId", *s.orderID)
+	}
+	if s.origClientOrderID != nil {
+		r.setParam("origClientOrderId", *s.origClientOrderID)
+	}
+	data, _, err := s.c.callAPI(ctx, r, opts...)
+	if err != nil {
+		return nil, err
+	}
+	res = new(Order)
+	err = json.Unmarshal(data, res)
+	if err != nil {
+		return nil, err
+	}
+	return res, nil
+}
+
+// Order define order info
+type Order struct {
+	AvgPrice         string           `json:"avgPrice"`
+	ClientOrderID    string           `json:"clientOrderId"`
+	CumBase          string           `json:"cumBase"`
+	ExecutedQuantity string           `json:"executedQty"`
+	OrderID          int64            `json:"orderId"`
+	OrigQuantity     string           `json:"origQty"`
+	OrigType         OrderType        `json:"origType"`
+	Price            string           `json:"price"`
+	ReduceOnly       bool             `json:"reduceOnly"`
+	Side             SideType         `json:"side"`
+	PositionSide     PositionSideType `json:"positionSide"`
+	Status           OrderStatusType  `json:"status"`
+	StopPrice        string           `json:"stopPrice"`
+	ClosePosition    bool             `json:"closePosition"`
+	Symbol           string           `json:"symbol"`
+	Pair             string           `json:"pair"`
+	Time             int64            `json:"time"`
+	TimeInForce      TimeInForceType  `json:"timeInForce"`
+	Type             OrderType        `json:"type"`
+	ActivatePrice    string           `json:"activatePrice"`
+	PriceRate        string           `json:"priceRate"`
+	UpdateTime       int64            `json:"updateTime"`
+	WorkingType      WorkingType      `json:"workingType"`
+	PriceProtect     bool             `json:"priceProtect"`
 }
