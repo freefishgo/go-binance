@@ -6,8 +6,9 @@ import (
 
 // APIError define API error when response status is 4xx or 5xx
 type APIError struct {
-	Code    int64  `json:"code"`
-	Message string `json:"msg"`
+	Code     int64  `json:"code"`
+	Message  string `json:"msg"`
+	Response []byte `json:"-"` // Assign the body value when the Code and Message fields are invalid.
 }
 
 // Error return error code and message
@@ -19,4 +20,8 @@ func (e APIError) Error() string {
 func IsAPIError(e error) bool {
 	_, ok := e.(*APIError)
 	return ok
+}
+
+func (e APIError) IsValid() bool {
+	return e.Code != 0 || e.Message != ""
 }

@@ -3,8 +3,8 @@
 A Golang SDK for [binance](https://www.binance.com) API.
 
 [![Build Status](https://travis-ci.org/adshao/go-binance.svg?branch=master)](https://travis-ci.org/adshao/go-binance)
-[![GoDoc](https://godoc.org/github.com/adshao/go-binance?status.svg)](https://godoc.org/github.com/adshao/go-binance)
-[![Go Report Card](https://goreportcard.com/badge/github.com/adshao/go-binance)](https://goreportcard.com/report/github.com/adshao/go-binance)
+[![GoDoc](https://godoc.org/github.com/freefishgo/go-binance?status.svg)](https://godoc.org/github.com/freefishgo/go-binance)
+[![Go Report Card](https://goreportcard.com/badge/github.com/freefishgo/go-binance)](https://goreportcard.com/report/github.com/freefishgo/go-binance)
 [![codecov](https://codecov.io/gh/adshao/go-binance/branch/master/graph/badge.svg)](https://codecov.io/gh/adshao/go-binance)
 
 All the REST APIs listed in [binance API document](https://github.com/binance-exchange/binance-official-api-docs) are implemented, as well as the websocket APIs.
@@ -21,32 +21,42 @@ Name | Description | Status
 [web-socket-streams.md](https://github.com/binance/binance-spot-api-docs/blob/master/web-socket-streams.md) | Details on available streams and payloads | <input type="checkbox" checked>  Implemented
 [user-data-stream.md](https://github.com/binance/binance-spot-api-docs/blob/master/user-data-stream.md) | Details on the dedicated account stream | <input type="checkbox" checked>  Implemented
 [margin-api.md](https://binance-docs.github.io/apidocs/spot/en) | Details on the Margin API (/sapi) | <input type="checkbox" checked>  Implemented
-[futures-api.md](https://binance-docs.github.io/apidocs/futures/en/#general-info) | Details on the Futures API (/fapi) | <input type="checkbox" checked>  Partially Implemented
-[delivery-api.md](https://binance-docs.github.io/apidocs/delivery/en/#general-info) | Details on the Coin-M Futures API (/dapi) | <input type="checkbox" checked>  Partially Implemented
+[futures-api.md](https://binance-docs.github.io/apidocs/futures/en/#general-info) | Details on the Futures API (/fapi) | <input type="checkbox" checked>  Implemented
+[delivery-api.md](https://binance-docs.github.io/apidocs/delivery/en/#general-info) | Details on the Coin-M Futures API (/dapi) | <input type="checkbox" checked>  Implemented
+[options-api.md](https://binance-docs.github.io/apidocs/voptions/en/#general-info) | Details on the Options API(/eapi) | <input type="checkbox" checked>  Implemented  
+[portfolio-margin.md](https://developers.binance.com/docs/derivatives/portfolio-margin/general-info) | Details on the portfolio-margin API(/papi) | <input type="checkbox">  Implemented  
+
+
+If you find an unimplemented interface, please submit an issue. It's great if you can open a PR to fix it.
 
 ### Installation
 
 ```shell
-go get github.com/adshao/go-binance/v2
+go get github.com/freefishgo/go-binance/v2
 ```
 
 For v1 API, it has been moved to `v1` branch, please use:
 
 ```shell
-go get github.com/adshao/go-binance/v1
+go get github.com/freefishgo/go-binance/v1
 ```
 
 ### Importing
 
 ```golang
 import (
+    // for spot and other interfaces contained in https://binance-docs.github.io/apidocs/spot/en/#change-log
     "github.com/freefishgo/go-binance/v2"
+    
+    "github.com/freefishgo/go-binance/v2/futures" // optional package
+    "github.com/freefishgo/go-binance/v2/delivery" // optional package
+    "github.com/freefishgo/go-binance/v2/options" // optional package
 )
 ```
 
 ### Documentation
 
-[![GoDoc](https://godoc.org/github.com/adshao/go-binance?status.svg)](https://godoc.org/github.com/adshao/go-binance)
+[![GoDoc](https://godoc.org/github.com/freefishgo/go-binance?status.svg)](https://godoc.org/github.com/freefishgo/go-binance)
 
 ### REST API
 
@@ -68,7 +78,17 @@ A service instance stands for a REST API endpoint and is initialized by client.N
 
 Simply call API in chain style. Call Do() in the end to send HTTP request.
 
-Following are some simple examples, please refer to [godoc](https://godoc.org/github.com/adshao/go-binance) for full references.
+Following are some simple examples, please refer to [godoc](https://godoc.org/github.com/freefishgo/go-binance) for full references.
+
+If you have any questions, please refer to the specific version of the code for specific reference definitions or usage methods
+
+##### Proxy Client
+
+```
+proxyUrl := "http://127.0.0.1:7890" // Please replace it with your exact proxy URL.
+client := binance.NewProxiedClient(apiKey, apiSecret, proxyUrl)
+```
+
 
 #### Create Order
 
@@ -219,6 +239,12 @@ You don't need Client in websocket API. Just call binance.WsXxxServe(args, handl
 
 > For delivery API you can use `delivery.WsXxxServe(args, handler, errHandler)`.
 
+If you want to use a proxy, you can set `HTTPS_PROXY` or `HTTP_PROXY` in the environment variable, or you can call `SetWsProxyUrl` in the target packages within your code. Then you can call other websocket functions. For example:
+```golang
+binance.SetWsProxyUrl("http://127.0.0.1:7890")
+binance.WsDepthServe("LTCBTC", wsDepthHandler, errHandler)
+```
+
 #### Depth
 
 ```golang
@@ -354,4 +380,102 @@ import (
 delivery.UseTestnet = true
 BinanceClient = delivery.NewClient(ApiKey, SecretKey)
 ```
+
+#### Websocket client
+##### Order place
+##### Async write/read
+```go
+func main() {
+    orderPlaceService, _ := futures.NewOrderPlaceWsService(apiKey, secretKey)
+    
+    ctx, cancel := context.WithCancel(context.Background())
+    
+    c := make(chan os.Signal, 1)
+    signal.Notify(c, os.Interrupt)
+    go func() {
+        select {
+            case <-c:
+            cancel()
+        }
+    }()
+
+    request := futures.NewOrderPlaceWsRequest()
+    request.
+        Symbol("BTCUSDT").
+        Side(futures.SideTypeSell).
+        Type(futures.OrderTypeLimit).
+        Price("68198.00").
+        Quantity("0.002").
+        TimeInForce(futures.TimeInForceTypeGTC)
+
+    // sender
+    go func() {
+        for {
+            select {
+            case <-ctx.Done():
+                return
+            default:
+                err := orderPlaceService.Do("id", request)
+                if err != nil {
+                    return
+                }
+            }
+        }
+    }()
+
+    wg := &sync.WaitGroup{}
+    wg.Add(1)
+    go listenOrderPlaceResponse(ctx, wg, orderPlaceService)
+    wg.Wait()
+
+    log.Println("exit")
+}
+
+func listenOrderPlaceResponse(ctx context.Context, wg *sync.WaitGroup, orderPlaceService *futures.OrderPlaceWsService) {
+    defer wg.Done()
+    
+    go func() {
+        for msg := range orderPlaceService.GetReadChannel() {
+            log.Println("order place response", string(msg))
+        }
+    }()
+    
+    go func() {
+        for err := range orderPlaceService.GetReadErrorChannel() {
+            log.Println("order place error", err)
+        }
+    }()
+
+    select {
+    case <-ctx.Done():
+        orderPlaceService.ReceiveAllDataBeforeStop(10 * time.Second)
+    }
+}
+```
+##### Sync write/read
+```go
+func main() {
+    orderPlaceService, _ := futures.NewOrderPlaceWsService(apiKey, secretKey)
+    
+    id := "some-id"
+    request := futures.NewOrderPlaceWsRequest()
+    request.
+        Symbol("BTCUSDT").
+        Side(futures.SideTypeSell).
+        Type(futures.OrderTypeLimit).
+        Price("68198.00").
+        Quantity("0.002").
+        TimeInForce(futures.TimeInForceTypeGTC)
+
+    response, err := orderPlaceService.SyncDo(id, request)
+    if err != nil {
+        log.Fatal(err)
+    }
+    
+    // handle response
+}
+```
+
+
+
 
