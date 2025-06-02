@@ -8,23 +8,24 @@ import (
 
 // CreateCMOrderService https://developers.binance.com/docs/zh-CN/derivatives/portfolio-margin/trade/New-CM-Order 币本位合约下单
 type CreateCMOrderService struct {
-	c                *Client
-	symbol           string
-	side             SideType
-	positionSide     *PositionSideType
-	orderType        OrderType
-	timeInForce      *TimeInForceType
-	quantity         string
-	reduceOnly       *bool
-	price            *string
-	newClientOrderID *string
-	stopPrice        *string
-	closePosition    *bool
-	activationPrice  *string
-	callbackRate     *string
-	workingType      *WorkingType
-	priceProtect     *bool
-	newOrderRespType NewOrderRespType
+	c                       *Client
+	symbol                  string
+	side                    SideType
+	positionSide            *PositionSideType
+	orderType               OrderType
+	timeInForce             *TimeInForceType
+	quantity                string
+	reduceOnly              *bool
+	price                   *string
+	newClientOrderID        *string
+	stopPrice               *string
+	closePosition           *bool
+	activationPrice         *string
+	callbackRate            *string
+	workingType             *WorkingType
+	priceProtect            *bool
+	newOrderRespType        NewOrderRespType
+	selfTradePreventionMode SelfTradePreventionMode
 }
 
 // Symbol set symbol
@@ -130,6 +131,12 @@ func (s *CreateCMOrderService) NewOrderResponseType(newOrderResponseType NewOrde
 	return s
 }
 
+// SelfTradePreventionMode set SelfTradePreventionMode
+func (s *CreateCMOrderService) SelfTradePreventionMode(selfTradePreventionMode SelfTradePreventionMode) *CreateCMOrderService {
+	s.selfTradePreventionMode = selfTradePreventionMode
+	return s
+}
+
 // ClosePosition set closePosition
 func (s *CreateCMOrderService) ClosePosition(closePosition bool) *CreateCMOrderService {
 	s.closePosition = &closePosition
@@ -182,6 +189,10 @@ func (s *CreateCMOrderService) createOrder(ctx context.Context, endpoint string,
 	if s.closePosition != nil {
 		m["closePosition"] = *s.closePosition
 	}
+	if s.selfTradePreventionMode != "" {
+		m["selfTradePreventionMode"] = s.selfTradePreventionMode
+	}
+
 	r.setFormParams(m)
 	data, _, err = s.c.callAPI(ctx, r, opts...)
 	if err != nil {
@@ -391,4 +402,34 @@ type Order struct {
 	UpdateTime       int64            `json:"updateTime"`
 	WorkingType      WorkingType      `json:"workingType"`
 	PriceProtect     bool             `json:"priceProtect"`
+}
+
+// CancelAllCMOrderService https://developers.binance.com/docs/zh-CN/derivatives/portfolio-margin/trade/Cancel-All-CM-Open-Orders
+type CancelAllCMOrderService struct {
+	c      *Client
+	symbol string
+}
+
+type CancelAllCMOrder struct {
+}
+
+func (c *CancelAllCMOrderService) Symbol(symbol string) *CancelAllCMOrderService {
+	c.symbol = symbol
+	return c
+}
+
+func (c *CancelAllCMOrderService) Do(ctx context.Context, opts ...RequestOption) (res *CancelAllCMOrder, err error) {
+	r := &request{
+		method:   http.MethodDelete,
+		endpoint: "/papi/v1/cm/allOpenOrders",
+		secType:  secTypeSigned,
+	}
+	r.setParam("symbol", c.symbol)
+	data, _, err := c.c.callAPI(ctx, r, opts...)
+	if err != nil {
+		return nil, err
+	}
+	res = new(CancelAllCMOrder)
+	_ = json.Unmarshal(data, res)
+	return res, nil
 }

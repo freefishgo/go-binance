@@ -70,6 +70,8 @@ type UserDataEventReasonType string
 // ForceOrderCloseType define reason type for force order
 type ForceOrderCloseType string
 
+type SelfTradePreventionMode string
+
 // Endpoints
 const (
 	baseApiMainUrl    = "https://papi.binance.com"
@@ -78,6 +80,11 @@ const (
 
 // Global enums
 const (
+	SelfTradePreventionModeNone        SelfTradePreventionMode = "NONE"
+	SelfTradePreventionModeExpireTaker SelfTradePreventionMode = "EXPIRE_TAKER"
+	SelfTradePreventionModeExpireMaker SelfTradePreventionMode = "EXPIRE_MAKER"
+	SelfTradePreventionModeExpireBoth  SelfTradePreventionMode = "EXPIRE_BOTH"
+
 	SideTypeBuy  SideType = "BUY"
 	SideTypeSell SideType = "SELL"
 
@@ -385,4 +392,8 @@ func (c *Client) NewGetAccountService() *GetCMAccountService {
 
 func (c *Client) NewGetCMOrderService() *GetCMOrderService {
 	return &GetCMOrderService{c: c}
+}
+
+func (c *Client) NewCancelAllCMOrderService() *CancelAllCMOrderService {
+	return &CancelAllCMOrderService{c: c}
 }
