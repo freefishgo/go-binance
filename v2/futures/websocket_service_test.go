@@ -868,7 +868,7 @@ func (s *websocketServiceTestSuite) TestBookTickerServe() {
 	s.mockWsServe(data, errors.New(fakeErrMsg))
 	defer s.assertWsServe()
 
-	doneC, stopC, err := WsBookTickerServe("BNBUSDT", func(event *WsBookTickerEvent) {
+	doneC, stopC, err := WsBookTickerServe([]string{"BNBUSDT"}, func(event *WsBookTickerEvent) {
 		e := &WsBookTickerEvent{
 			Event:           "bookTicker",
 			UpdateID:        400900217,
