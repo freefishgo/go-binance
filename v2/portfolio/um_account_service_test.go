@@ -1,4 +1,4 @@
-package futures
+package portfolio
 
 import (
 	"testing"
@@ -6,60 +6,15 @@ import (
 	"github.com/stretchr/testify/suite"
 )
 
-type accountServiceTestSuite struct {
+type umAccountServiceTestSuite struct {
 	baseTestSuite
 }
 
-func TestAccountService(t *testing.T) {
-	suite.Run(t, new(accountServiceTestSuite))
+func TestUmAccountService(t *testing.T) {
+	suite.Run(t, new(umAccountServiceTestSuite))
 }
 
-func (s *accountServiceTestSuite) TestGetBalance() {
-	data := []byte(`[
-		{
-			"accountAlias": "SgsR",
-			"asset": "USDT",
-			"balance": "122607.35137903",
-			"crossWalletBalance": "23.72469206",
-			"crossUnPnl": "0.00000000",
-			"availableBalance": "23.72469206",
-			"maxWithdrawAmount": "23.72469206"
-		}
-	]`)
-	s.mockDo(data, nil)
-	defer s.assertDo()
-	s.assertReq(func(r *request) {
-		e := newSignedRequest()
-		s.assertRequestEqual(e, r)
-	})
-
-	res, err := s.client.NewGetBalanceService().Do(newContext())
-	s.r().NoError(err)
-	s.r().Len(res, 1)
-	e := &Balance{
-		AccountAlias:       "SgsR",
-		Asset:              "USDT",
-		Balance:            "122607.35137903",
-		CrossWalletBalance: "23.72469206",
-		CrossUnPnl:         "0.00000000",
-		AvailableBalance:   "23.72469206",
-		MaxWithdrawAmount:  "23.72469206",
-	}
-	s.assertBalanceEqual(e, res[0])
-}
-
-func (s *accountServiceTestSuite) assertBalanceEqual(e, a *Balance) {
-	r := s.r()
-	r.Equal(e.AccountAlias, a.AccountAlias, "AccountAlias")
-	r.Equal(e.Asset, a.Asset, "Asset")
-	r.Equal(e.Balance, a.Balance, "Balance")
-	r.Equal(e.CrossWalletBalance, a.CrossWalletBalance, "CrossWalletBalance")
-	r.Equal(e.CrossUnPnl, a.CrossUnPnl, "CrossUnPnl")
-	r.Equal(e.AvailableBalance, a.AvailableBalance, "AvailableBalance")
-	r.Equal(e.MaxWithdrawAmount, a.MaxWithdrawAmount, "MaxWithdrawAmount")
-}
-
-func (s *accountServiceTestSuite) TestGetAccount() {
+func (s *umAccountServiceTestSuite) TestGetAccount() {
 	data := []byte(`{
 		"assets": [
 			{
@@ -114,10 +69,10 @@ func (s *accountServiceTestSuite) TestGetAccount() {
 		s.assertRequestEqual(e, r)
 	})
 
-	res, err := s.client.NewGetAccountService().Do(newContext())
+	res, err := s.client.NewGetUmAccountService().Do(newContext())
 	s.r().NoError(err)
-	e := &Account{
-		Assets: []*AccountAsset{
+	e := &UmAccount{
+		Assets: []*UmAccountAsset{
 			{
 				Asset:                  "USDT",
 				InitialMargin:          "0.33683000",
@@ -135,7 +90,7 @@ func (s *accountServiceTestSuite) TestGetAccount() {
 		CanDeposit:        true,
 		FeeTier:           2,
 		MaxWithdrawAmount: "8.41264592",
-		Positions: []*AccountPosition{
+		Positions: []*UmAccountPosition{
 			{
 				Isolated:               false,
 				Leverage:               "20",
@@ -166,7 +121,7 @@ func (s *accountServiceTestSuite) TestGetAccount() {
 	s.assertAccountEqual(e, res)
 }
 
-func (s *accountServiceTestSuite) assertAccountEqual(e, a *Account) {
+func (s *umAccountServiceTestSuite) assertAccountEqual(e, a *UmAccount) {
 	r := s.r()
 	r.Equal(e.CanDeposit, a.CanDeposit, "CanDeposit")
 	r.Equal(e.CanTrade, a.CanTrade, "CanTrade")

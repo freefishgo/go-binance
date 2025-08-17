@@ -397,3 +397,24 @@ func (c *Client) NewGetCMOrderService() *GetCMOrderService {
 func (c *Client) NewCancelAllCMOrderService() *CancelAllCMOrderService {
 	return &CancelAllCMOrderService{c: c}
 }
+
+func (c *Client) NewCreateUmOrderService() *CreateUmOrderService {
+	return &CreateUmOrderService{c: c}
+}
+
+// NewChangeUmLeverageService init change leverage service
+func (c *Client) NewChangeUmLeverageService() *ChangeUmLeverageService {
+	return &ChangeUmLeverageService{c: c}
+}
+
+func (c *Client) NewGetUmAccountService() *GetUmAccountService {
+	return &GetUmAccountService{c: c}
+}
+
+func (c *Client) NewGetUmOrderService() *GetUmOrderService {
+	return &GetUmOrderService{c: c}
+}
+
+func (c *Client) NewCancelAllUmOrderService() *CancelAllOpenUmOrdersService {
+	return &CancelAllOpenUmOrdersService{c: c}
+}
